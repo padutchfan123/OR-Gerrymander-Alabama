@@ -1,16 +1,16 @@
-If you use this template for research, please [cite it](template_reference.bib):
-> Kedron, P., & Holler, J. (2023). Template for Reproducible and Replicable Research in Human-Environment and Geographical Sciences. https://doi.org/10.17605/OSF.IO/W29MQ
-
-# Title of Study
+# Gerrymandering in Alabama
 
 ## Contributors
 
-- First Name Last Name\*, email address, @githubname, ORCID link, affiliated institution(s)
-- First Name Last Name, email address, @githubname, ORCID link, affiliated institution(s)
+- Samuel Barnard \*, sbbarnard@middlebury.edu, @padutchfan123, Middlebury College
 
 \* Corresponding author and creator
 
 ## Abstract
+
+This is a study of gerrymandering in Alabama.
+We well test three methods of shape-based compactness scores, assess the representativeness of districts based on prior presidential elections and race. 
+We will then extend prior studies by calculating representativeness of the convex hull of district polygons.
 
 Write a brief abstract about your research project.
 If the project is a reproduction or replication study, include the full citation with a statement

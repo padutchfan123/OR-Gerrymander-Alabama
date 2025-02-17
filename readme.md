@@ -28,7 +28,7 @@ A graphical abstract of the study could also be included as an image here.
 - `Date modified`: 2025-02-17
 - `Spatial Coverage`: Alabama OSM:[161950](https://www.openstreetmap.org/relation/161950)
 - `Spatial Resolution`: Census Block Groups
-- `Spatial Reference System`: EPSG: 4269, NAD 1983
+- `Spatial Reference System`: EPSG: 4269, NAD 1983 geographic coordinate system
 - `Temporal Coverage`: 2020-2024 population and voting data
 - `Temporal Resolution`: Decennial census
 

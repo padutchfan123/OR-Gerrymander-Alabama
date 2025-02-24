@@ -14,8 +14,8 @@ The *sequence* of procedures to be followed is implied by the *order* in the tab
 path | name | purpose |
 -- | -- | -- |
 environment | readme.md | set up computational environment |
-code | data_setup.Rmd | download and preprocess data |
+code | gerrymandering_analysis_plan.Rmd | pre-analysis plan |
 protocol | survey_irb.pdf | Institutional review board protocol for survey sampling and instrument |
 protocol | mapworkshop.pdf | participatory mapping workshop protocol |
 code | analysis.Rmd | run analysis |
-code | visualizations.Rmd | generate visualizations for results |
+

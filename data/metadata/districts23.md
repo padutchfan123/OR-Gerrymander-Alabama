@@ -4,7 +4,7 @@
 - `Spatial Resolution`: congressional districts
 - `Spatial Reference System`: EPSG: 3857, NAD 1984 Web Mercator projection
 - `Temporal Coverage`: districts approved in 2023 for use in 2024.
-- `Temporal Resolution`: annual election (2020)
+- `Temporal Resolution`: 
 - `Lineage`: Loaded into QGIS as ArcGIS feaure service layer and saved in geopackage format. Extraneous data fields were removed and the `FIX GEOMETRIES` tool was used to correct geometry errors.
 - `Distribution`: Alabama State GIS [via ESRI feature service](https://services7.arcgis.com/jF2q3LPxL7PETdYk/arcgis/rest/services/2023_Court_Ordered_Congressional_Plan/FeatureServer/)
 - `Constraints`: Public Domain data free for use and redistribution.

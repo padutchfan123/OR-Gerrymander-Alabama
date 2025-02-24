@@ -2,8 +2,7 @@
 
 ### Authors
 
-- First Name Last Name\*, email address, @githubname, ORCID link, affiliated institution(s)
-- First Name Last Name, email address, @githubname, ORCID link, affiliated institution(s)
+- Samuel Barnard\*, sbbarnard@middlebury.edu, @padutchfan123, Middlebury College
 
 \* Corresponding author and creator
 
@@ -55,6 +54,10 @@ Enumerate specific **hypotheses** to be tested or **research questions** to be i
 ## Materials and procedure
 
 ### Computational environment
+
+- `OS`: MacOS (version: )
+-  `Software Requirements`: Rstudio (version: ), R (version: )
+    -  `R Packages`: groundhog (version: ), here (version: ), tidyverse (version: ), dplyr (version: ), sf (version: ), stars (version: ), tmap (version: )
 
 Define the hardware, operating system, and software requirements for the research.
 Include citations to important software projects, plugins or packages and their versions.

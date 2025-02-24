@@ -12,7 +12,6 @@ This is a study of gerrymandering in Alabama.
 We well test three methods of shape-based compactness scores, assess the representativeness of districts based on prior presidential elections and race. 
 We will then extend prior studies by calculating representativeness of the convex hull of district polygons.
 
-Write a brief abstract about your research project.
 If the project is a reproduction or replication study, include the full citation with a statement
 This study is a *reproduction/replication* of:
 

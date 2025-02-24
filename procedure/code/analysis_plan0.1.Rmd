@@ -34,11 +34,7 @@ We will then extend prior studies by calculating representativeness of the conve
 
 This is an original study based on literature on gerrymandering metrics. 
 
-This study is exploratory in design, with the goal of evaluating usefulness of a new gerrymandering metric based on the convex hull of a congressional district and representative capability inside the convex hull compared to the congressional district.
-
-Also describe the original study archetype, e.g. is it **observational**, **experimental**, **quasi-experimental**, or **exploratory**?
-
-Enumerate specific **hypotheses** to be tested or **research questions** to be investigated here, and specify the type of method, statistical test or model to be used on the hypothesis or question.
+This study is **exploratory** in design, with the goal of evaluating usefulness of a new gerrymandering metric based on the convex hull of a congressional district and representative capability inside the convex hull compared to the congressional district.
 
 # Materials and procedure
 

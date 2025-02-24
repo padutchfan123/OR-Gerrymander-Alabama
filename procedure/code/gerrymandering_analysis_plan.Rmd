@@ -99,9 +99,18 @@ knitr::opts_chunk$set(
 )
 ```
 
+------------------------------------------------------------------------
+
 ## Data and variables
 
 We plan on using data sources...
+
+Set up districts file from `districts.gpkg`:
+
+```{r}
+districts_file <- here("data", "raw", "public", "alabama_dataset", "districts.gpkg")
+st_layers(districts_file)
+```
 
 ### Layers from `districts.gpkg`
 
@@ -135,6 +144,12 @@ We plan on using data sources...
 | G20PRETRU | ... | total votes for Trump in 2020 | ... | ... | ... | ... | ... |
 | G20PREBID | ... | total votes for Biden in 2020 | ... | ... | ... | ... | ... |
 
+**Load variables:**
+
+```{r}
+precincts20 <- st_read(districts_file, layer="precincts20")
+```
+
 #### `districts23`
 
 -   `Title`: US Congressional Districts 2023
@@ -165,6 +180,12 @@ We plan on using data sources...
 | WHITE | ... | total white population (2020 census) | ... | ... | ... | ... | ... |
 | BLACK | ... | total Black or African American population (2020 census) | ... | ... | ... | ... | ... |
 
+**Load variables:**
+
+```{r}
+districts23 <- st_read(districts_file, layer="districts23")
+```
+
 ### `blockgroups2020`
 
 -   `Title`: Block Groups 2020
@@ -194,6 +215,47 @@ We plan on using data sources...
 | P4_001N | ... | total population, 18 years or older | ... | ... | ... | ... | ... |
 | P4_006N | ... | total: not Hispanic or Latino, Population of one race, Black or African American alone, 18 years or older | ... | ... | ... | ... | ... |
 | P5_003N | ... | Total institutionalized population in correctional facilities for adults, 18 years or older | ... | ... | ... | ... | ... |
+
+**Load data:**
+
+Acquire decennial census data in block groups using the `tidycensus` package.
+First, query metadata for the `pl` public law data series.
+
+```{r}
+census_metadata_file <- here("data", "metadata", "census2020pl_vars.csv")
+if(file.exists(census_metadata_file)){
+  census2020pl_vars <- read.csv(census_metadata_file)
+} else {
+  census2020pl_vars <- load_variables(2020, "pl")
+  write.csv(census2020pl_vars, here("data", "metadata", "census2020pl_vars.csv"))
+}
+```
+
+The issue in the 2023 court cases on Alabama's gerrymandering was a racial gerrymander discriminating against people identifying as Black or African American.
+Therefore, we will analyze people of voting age (18 or older) identifying as Black and or African as one race in any combination with other races.
+This data is found in table `P3`.
+
+Query the public law data series table P3 on "race for the population 18 years and over".
+
+```{r message=FALSE, warning=FALSE}
+blockgroup_file <- here("data", "raw", "public", "block_groups.gpkg")
+
+# if the data is already downloaded, just load it
+# otherwise, query from the census and save
+if(file.exists(blockgroup_file)){
+  blockgroups <- st_read(blockgroup_file)
+} else {
+  blockgroups <- get_decennial(geography = "block group",
+                               sumfile = "pl",
+                               table = "P3",
+                               year = 2020,
+                               state = "Alabama",
+                               output = "wide",
+                               geometry = TRUE,
+                               keep_geo_vars = TRUE)
+  st_write(blockgroups, blockgroup_file)
+}
+```
 
 ## Prior observations
 
@@ -227,6 +289,8 @@ Given the research design and primary data to be collected and/or secondary data
 
 These include: - uneven primary data collection due to geographic inaccessibility or other constraints - multiple hypothesis testing - edge or boundary effects - the modifiable areal unit problem - nonstationarity - spatial dependence or autocorrelation - temporal dependence or autocorrelation - spatial scale dependency - spatial anisotropies - confusion of spatial and a-spatial causation - ecological fallacy - uncertainty e.g. from spatial disaggregation, anonymization, differential privacy
 
+***
+
 ## Data transformations
 
 `blockgroups2020` needs to be acquired using `tidycensus()` in R
@@ -256,11 +320,15 @@ Examples of **variable** transformations include standardization, normalization,
 
 Be sure to include any steps planned to **exclude** observations with *missing* or *outlier* data, to **group** observations by *attribute* or *geographic* criteria, or to **impute** missing data or apply spatial or temporal **interpolation**.
 
+***
+
 ## Analysis
 
 Describe the methods of analysis that will directly test the hypotheses or provide results to answer the research questions.
 This section should explicitly define any spatial / statistical *models* and their *parameters*, including *grouping* criteria, *weighting* criteria, and *significance thresholds*.
 Also explain any follow-up analyses or validations.
+
+***
 
 # Results
 

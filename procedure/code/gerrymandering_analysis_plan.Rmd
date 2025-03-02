@@ -48,7 +48,7 @@ I plan on using...\
 `stars()` spatial-temporal raster data in R\
 `tmap()` thematic maps, including static maps or interactive leaflet maps\
 
-```{r environment-setup, include = FALSE}
+```{r environment-setup, echo=FALSE}
 # record all the packages you are using here
 # this includes any calls to library(), require(),
 # and double colons such as here::i_am()
@@ -348,7 +348,7 @@ blockgroups_calc <- blockgroups |>
   rowwise() |> 
   mutate(Black = sum(c_across(all_of(baa_vars$name)))) |> 
   ungroup() |> 
-  mutate(bgarea = st_area(geometry),
+  mutate(bgarea = st_area(geom),
          Total = P3_001N,
          PctBlack = Black / Total * 100,
          CheckPct = (Black + P3_003N) / Total * 100
@@ -410,8 +410,8 @@ Therefore, add the more complex data to `st_intersection` first, and you’ll se
 ```{r}
 districts23_estimates <- st_intersection(blockgroups_calc, districts23) |> 
   mutate(
-    awTot = Total * as.numeric(st_area(geometry) / bgarea),
-    awBlack = Black * as.numeric(st_area(geometry) / bgarea)
+    awTot = Total * as.numeric(st_area(geom) / bgarea),
+    awBlack = Black * as.numeric(st_area(geom) / bgarea)
   ) |> 
   st_drop_geometry() |> 
   group_by(DISTRICT) |> 
@@ -434,8 +434,8 @@ districts23_join_bg |> st_drop_geometry() |> kable()
 ```{r}
 districts23_estimates <- st_intersection(blockgroups_calc, st_convex_hull(districts23)) |> 
   mutate(
-    awTot = Total * as.numeric(st_area(geometry) / bgarea),
-    awBlack = Black * as.numeric(st_area(geometry) / bgarea)
+    awTot = Total * as.numeric(st_area(geom) / bgarea),
+    awBlack = Black * as.numeric(st_area(geom) / bgarea)
   ) |> 
   st_drop_geometry() |> 
   group_by(DISTRICT) |> 
@@ -516,6 +516,7 @@ districts23_results_plot |> ggplot() +
 
   facet_wrap(~name)
 ```
+
 There is a positive relationship between minimum bounding circle compactness and absolute convex hull representational difference. There is a negative relationship between convex hull compactness and absolute convex hull representational difference. There is a negative relationship between shape compactness and absolute convex hull representational difference. 
 Shape and convex hull exhibit a positive correlation.
 
@@ -543,20 +544,3 @@ This analysis is based on work by Professor Joseph Holler of Middlebury College,
 This report is based upon the template for Reproducible and Replicable Research in Human-Environment and Geographical Sciences, [DOI:[10.17605/OSF.IO/W29MQ](DOI:%5B10.17605/OSF.IO/W29MQ){.uri}](https://doi.org/10.17605/OSF.IO/W29MQ)
 
 # References
-
-Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie, and Jeff Allen. 2024. Htmltools: Tools for HTML. https://github.com/rstudio/htmltools.
-Müller, Kirill. 2020. Here: A Simpler Way to Find Your Files. https://here.r-lib.org/.
-Pebesma, Edzer. 2018. “Simple Features for R: Standardized Support for Spatial Vector Data.” The R Journal 10 (1): 439–46. https://doi.org/10.32614/RJ-2018-009.
-———. 2024a. Lwgeom: Bindings to Selected Liblwgeom Functions for Simple Features. https://r-spatial.github.io/lwgeom/.
-———. 2024b. Sf: Simple Features for r. https://r-spatial.github.io/sf/.
-Pebesma, Edzer, and Roger Bivand. 2023. Spatial Data Science: With applications in R. Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016.
-R Core Team. 2024. R: A Language and Environment for Statistical Computing. Vienna, Austria: R Foundation for Statistical Computing. https://www.R-project.org/.
-Tennekes, Martijn. 2018. “tmap: Thematic Maps in R.” Journal of Statistical Software 84 (6): 1–39. https://doi.org/10.18637/jss.v084.i06.
-———. 2025. Tmap: Thematic Maps. https://github.com/r-tmap/tmap.
-Walker, Kyle, and Matt Herman. 2025. Tidycensus: Load US Census Boundary and Attribute Data as Tidyverse and Sf-Ready Data Frames. https://walker-data.com/tidycensus/.
-Wickham, Hadley. 2023. Tidyverse: Easily Install and Load the Tidyverse. https://tidyverse.tidyverse.org.
-Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. “Welcome to the tidyverse.” Journal of Open Source Software 4 (43): 1686. https://doi.org/10.21105/joss.01686.
-Xie, Yihui. 2014. “Knitr: A Comprehensive Tool for Reproducible Research in R.” In Implementing Reproducible Computational Research, edited by Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/CRC.
-———. 2015. Dynamic Documents with R and Knitr. 2nd ed. Boca Raton, Florida: Chapman; Hall/CRC. https://yihui.org/knitr/.
-———. 2024. Knitr: A General-Purpose Package for Dynamic Report Generation in r. https://yihui.org/knitr/.
-Xie, Yihui, JJ Allaire, and Jeffrey Horner. 2024. Markdown: Render Markdown with Commonmark. https://github.com/rstudio/markdown.

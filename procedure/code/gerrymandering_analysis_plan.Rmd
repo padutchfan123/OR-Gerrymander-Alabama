@@ -52,7 +52,16 @@ I plan on using...\
 # record all the packages you are using here
 # this includes any calls to library(), require(),
 # and double colons such as here::i_am()
-packages <- c("tidyverse", "here", "sf", "tmap", "tidycensus")
+packages <- c("tidyverse", 
+              "here", 
+              "sf", 
+              "tmap", 
+              "tidycensus", 
+              "knitr", 
+              "lwgeom",
+              "markdown",
+              "htmltools"
+              )
 
 # force all conflicts to become errors
 # if you load dplyr and use filter(), R has to guess whether you mean dplyr::filter() or stats::filter()
@@ -186,6 +195,26 @@ precincts20 <- st_read(districts_file, layer="precincts20")
 districts23 <- st_read(districts_file, layer="districts23")
 ```
 
+**Map 2023 districts**
+
+```{r}
+tmap_mode(mode = "plot")
+
+districts23map <- districts23 |> 
+  tm_shape() +
+  tm_polygons(fill_alpha = 0,
+              col = "black") +
+  tm_labels(text = "DISTRICT",
+          col="black",
+          bgcol = "white",
+          bgcol_alpha = 0.5,
+          on_surface = TRUE,
+          just = c("center", "center")
+          )
+
+districts23map #render map
+```
+
 ### `blockgroups2020`
 
 -   `Title`: Block Groups 2020
@@ -233,9 +262,10 @@ if(file.exists(census_metadata_file)){
 
 The issue in the 2023 court cases on Alabama's gerrymandering was a racial gerrymander discriminating against people identifying as Black or African American.
 Therefore, we will analyze people of voting age (18 or older) identifying as Black and or African as one race in any combination with other races.
-This data is found in table `P3`.
 
-Query the public law data series table P3 on "race for the population 18 years and over".
+This data is found in public law data series table `P3`.
+
+Query table `P3` on `"race for the population 18 years and over"`.
 
 ```{r message=FALSE, warning=FALSE}
 blockgroup_file <- here("data", "raw", "public", "block_groups.gpkg")
@@ -259,80 +289,243 @@ if(file.exists(blockgroup_file)){
 
 ## Prior observations
 
-I have conducted an analogous analysis with this data before using QGIS to determine compactness along with race and party affiliation data.
-However, I only conducted my analysis with an area-weighted re-aggregation approach, and did not incorporate convex hull.
+I have previously conducted an analysis with this data using QGIS to determine compactness along with race and party affiliation data.
 
-At the time of this study pre-registration, the authors had \_\_\_\_\_ prior knowledge of the geography of the study region with regards to the \_\_\_\_ phenomena to be studied.
-This study is related to \_\_\_\_ prior studies by the authors
-
-For each primary data source, declare the extent to which authors had already engaged with the data:
-
--   [ ] no data collection has started
--   [ ] pilot test data has been collected
--   [ ] data collection is in progress and data has not been observed
--   [ ] data collection is in progress and \_\_% of data has been observed
--   [ ] data collection is complete and data has been observed. Explain how authors have already manipulated / explored the data.
-
-For each secondary source, declare the extent to which authors had already engaged with the data:
-
--   [ ] data is not available yet
--   [ ] data is available, but only metadata has been observed
--   [ ] metadata and descriptive statistics have been observed
--   [ ] metadata and a pilot test subset or sample of the full dataset have been observed
--   [ ] the full dataset has been observed. Explain how authors have already manipulated / explored the data.
-
-If pilot test data has been collected or acquired, describe how the researchers observed and analyzed the pilot test, and the extent to which the pilot test influenced the research design.
+However, I only conducted my analysis with an area-weighted re-aggregation approach, and did not incorporate convex hulls.
 
 ## Bias and threats to validity
 
-Given the research design and primary data to be collected and/or secondary data to be used, discuss common threats to validity and the approach to mitigating those threats, with an emphasis on geographic threats to validity.
+"This study is explicitly an investigation to the modifiable areal unit problem. Aspects of the study are extremely sensitive to the combination of edge effects and scale, whereby complex borders formed by natural features, e.g. coastlines or rivers, vary greatly in perimeter depending on the scale of analysis. We hope that in part, this study establishes a method that is more robust (less sensitive) to the threats to validity caused by scale and edge effects in studies of gerrymandering and district shapes."
 
-These include: - uneven primary data collection due to geographic inaccessibility or other constraints - multiple hypothesis testing - edge or boundary effects - the modifiable areal unit problem - nonstationarity - spatial dependence or autocorrelation - temporal dependence or autocorrelation - spatial scale dependency - spatial anisotropies - confusion of spatial and a-spatial causation - ecological fallacy - uncertainty e.g. from spatial disaggregation, anonymization, differential privacy
-
-***
+------------------------------------------------------------------------
 
 ## Data transformations
 
-`blockgroups2020` needs to be acquired using `tidycensus()` in R
+### Step 1:
 
-`districts23` needs to be reprojected to EPSG:4269 for geodesic analysis
+`districts23` needs to be re-projected to EPSG:4269 NAD 1983 coordinate system using `st_transform()` for the purpose of geodesic analysis.
 
-Area needs to be calculated for `districts23` and `blockgroups2020`
+From here, we can calculate the percentage of population identifying as Black using `mutate()`.
 
-The process of area-weighted re-aggregation needs to be conducted for `blockgroups20` and `districts23`
+```{r}
+districts23 <- districts23 |> st_transform(4269) |> 
+  mutate(pctBlack = round(BLACK / POPULATION * 100, 1))
+```
 
-Compactness needs to be calculated for `districts23`
+### Step 2:
 
-Convex hull needs to be calculated for `districts23`
+Census data (`blockgroups2020`) also needs to be re-projected from the WGS 1984 geographic coordinate system to the NAD 1983 geographic coordinate system.
 
-Race, compactness and voting data need to be joined together to produce a final table.
+```{r}
+blockgroups <- st_transform(blockgroups, 4269)
+```
 
-Describe all data transformations planned to prepare data sources for analysis.
-This section should explain with the fullest detail possible how to transform data from the **raw** state at the time of acquisition or observation, to the pre-processed **derived** state ready for the main analysis.
-Including steps to check and mitigate sources of **bias** and **threats to validity**.
-The method may anticipate **contingencies**, e.g. tests for normality and alternative decisions to make based on the results of the test.
-More specifically, all the **geographic** and **variable** transformations required to prepare input data as described in the data and variables section above to match the study's spatio-temporal characteristics as described in the study metadata and study design sections.
-Visual workflow diagrams may help communicate the methodology in this section.
+### Step 3:
 
-Examples of **geographic** transformations include coordinate system transformations, aggregation, disaggregation, spatial interpolation, distance calculations, zonal statistics, etc.
+Find the total of people identifying as Black or African American as one race or any combination of multiple races.
 
-Examples of **variable** transformations include standardization, normalization, constructed variables, imputation, classification, etc.
+#### a. First, make a list of all the variables inclusive of people identifying as Black or African American.
 
-Be sure to include any steps planned to **exclude** observations with *missing* or *outlier* data, to **group** observations by *attribute* or *geographic* criteria, or to **impute** missing data or apply spatial or temporal **interpolation**.
+```{r}
+baa_vars <- census2020pl_vars |> 
+  dplyr::filter(str_detect(name, "P3"),
+                str_detect(label, "Black")) |> 
+  select(-concept)
 
-***
+baa_vars |> kable()
+```
+
+#### b. Next, calculate new columns.
+
+`Black` is a sum of all 32 columns shown above, in which any of the racial categories by which someone identifies is Black or African American.\
+`Total` is a copy of the population 18 years or over, variable `P3_001N`.\
+`PctBlack` is calculated as `Black / Total * 100`\
+`CheckPct` is calculated as the percentage of the population 18 years or older that is either white of one race only (`P3_003N`) or Black or African American as calculated above.
+In Alabama, we can expect that this will be close to 100% for most block groups, and should never exceed 100%.
+
+```{r}
+blockgroups_calc <- blockgroups |> 
+  rowwise() |> 
+  mutate(Black = sum(c_across(all_of(baa_vars$name)))) |> 
+  ungroup() |> 
+  mutate(bgarea = st_area(geometry),
+         Total = P3_001N,
+         PctBlack = Black / Total * 100,
+         CheckPct = (Black + P3_003N) / Total * 100
+         ) |> 
+  select(GEOID, bgarea, Black, Total, PctBlack, CheckPct)
+```
+
+#### c. Save the results in `blockgroups_calc.gpkg`
+
+```{r}
+st_write(blockgroups_calc, 
+         here("data", "derived", "public", "blockgroups_calc.gpkg"),
+         append=FALSE)
+```
+
+### Step 4:
+
+Map the percentage of the population 18 or over that is Black or African American.
+
+```{r}
+tmap_mode(mode = "plot")
+blkgrp_baa_map <- tm_shape(blockgroups_calc) + 
+  tm_polygons(
+    fill = "PctBlack",
+    col_alpha = 0.2,
+    lwd = 0.1,
+    col = "grey90"
+  )
+
+blkgrp_baa_map
+```
+
+Map approved 2023 districts over the black population
+
+```{r}
+tmap_mode(mode = "view") #non-static map view
+
+blkgrp_baa_map +
+  districts23map
+```
+
+------------------------------------------------------------------------
 
 ## Analysis
 
-Describe the methods of analysis that will directly test the hypotheses or provide results to answer the research questions.
-This section should explicitly define any spatial / statistical *models* and their *parameters*, including *grouping* criteria, *weighting* criteria, and *significance thresholds*.
-Also explain any follow-up analyses or validations.
+### Approach 1: AWR
 
-***
+Use area weighted re-aggregation to estimate white and black voting age populations in block groups.
+
+Why do this when `POPULATION`, `BLACK`, and `WHITE` variables are already in the table?
+*First*, this is the total population, but we should care more about the voting age population.
+*Second*, we may want to categorize and calculate `BLACK` differently from the state of Alabama.
+
+It turns out that R optimizes the **first** dataset in a spatial query or overlay, with a spatial index, and not the second.
+Therefore, add the more complex data to `st_intersection` first, and you’ll see remarkably different run times.
+
+[Spatial indices in R (sf)](https://r-spatial.org/r/2017/06/22/spatial-index.html)
+
+```{r}
+districts23_estimates <- st_intersection(blockgroups_calc, districts23) |> 
+  mutate(
+    awTot = Total * as.numeric(st_area(geometry) / bgarea),
+    awBlack = Black * as.numeric(st_area(geometry) / bgarea)
+  ) |> 
+  st_drop_geometry() |> 
+  group_by(DISTRICT) |> 
+  summarize(bgTotal = sum(awTot),
+            bgBlack = sum(awBlack))
+
+districts23_join_bg <- districts23 |> 
+  left_join(districts23_estimates, by = "DISTRICT") |> 
+  mutate(pctBlackbg = round(bgBlack / bgTotal * 100, 1))
+```
+
+Report results. Percentages of Black or African American people vary significantly from district to district.
+
+```{r}
+districts23_join_bg |> st_drop_geometry() |> kable()
+```
+
+### Approach 2: Convex hull
+
+```{r}
+districts23_estimates <- st_intersection(blockgroups_calc, st_convex_hull(districts23)) |> 
+  mutate(
+    awTot = Total * as.numeric(st_area(geometry) / bgarea),
+    awBlack = Black * as.numeric(st_area(geometry) / bgarea)
+  ) |> 
+  st_drop_geometry() |> 
+  group_by(DISTRICT) |> 
+  summarize(chTotal = sum(awTot),
+            chBlack = sum(awBlack))
+```
+
+Join convex hull estimates to districts with blockgroup estimates.
+
+```{r}
+districts23_join_ch <- districts23_join_bg |> 
+  left_join(districts23_estimates, by = "DISTRICT") |> 
+  mutate(pctBlackch = round(chBlack / chTotal * 100, 1),
+         diffPct = pctBlackbg - pctBlackch,
+         absdiffPct = abs(diffPct))
+```
+
+Calculate compactness scores based on:
+
+1. the area and perimeter
+2. the area and the area of the convex hull
+3. the area and the area of the minimum bounding circle
+
+Note: This code block takes some time to run due to the `st_minimum_bounding_circle` function.
+
+Also, to knit, will we need to replace`st_perimeter()` with `st_length(st_cast(geom, "MULTILINESTRING"))`?
+
+```{r}
+districts23_results <- districts23_join_ch |> 
+  mutate(
+    darea = st_area(geom),
+    dperim = st_length(st_cast(geom, "MULTILINESTRING")),
+#    dperim2 = st_perimeter(geom),
+    compact_shp = round( as.numeric((4 * pi * darea) / dperim^2), 2),
+    compact_hull = round( as.numeric(darea / st_area(st_convex_hull(geom))), 2),
+    compact_circ = round( as.numeric(darea / st_area(st_minimum_bounding_circle(geom))), 2)
+  )
+```
+
+------------------------------------------------------------------------
 
 # Results
 
-Describe how results are to be presented.
+## Visualization 1: Correlation matrix and small plots for gerrymandering indicators
+
+```{r}
+districts23_results_cor <- districts23_results |> 
+  st_drop_geometry() |> 
+  select(pctBlackbg,
+         diffPct,
+         absdiffPct,
+         compact_shp,
+         compact_hull,
+         compact_circ)
+
+districts23_results_cor |> cor() |> kable()
+```
+
+```{r}
+districts23_results_cor |> pairs()
+```
+
+## Visualization 2: Plot with representational difference and compactness
+
+This is a scatterplot with (absolute) difference in representation on x axis and compactness on y axis. This plot presents the three different compactness scores simultaneously with different colors.
+
+```{r}
+districts23_results_plot <- districts23_results |> 
+  st_drop_geometry() |> 
+  select(DISTRICT, pctBlack, absdiffPct, compact_shp, compact_hull, compact_circ) |> 
+  pivot_longer(cols = starts_with("compact"))
+
+districts23_results_plot |> ggplot() +
+  aes(x = absdiffPct, y = value) +
+  geom_smooth(method="lm", col = "grey30") +
+  geom_label(aes(label = DISTRICT, fill = pctBlack)) +
+  scale_fill_distiller(type = "div", palette = "PRGn") +
+
+  facet_wrap(~name)
+```
+There is a positive relationship between minimum bounding circle compactness and absolute convex hull representational difference. There is a negative relationship between convex hull compactness and absolute convex hull representational difference. There is a negative relationship between shape compactness and absolute convex hull representational difference. 
+Shape and convex hull exhibit a positive correlation.
+
+Districts 1 and 2 are the least compact across all scores.
+
+```{r}
+tm_shape(districts23_results) +
+  tm_polygons(fill = "pctBlackbg") +
+  tm_text("DISTRICT")
+```
 
 # Discussion
 
@@ -345,11 +538,25 @@ If a prior registration *does* exist, explain the rationale for revising the reg
 
 # Acknowledgements
 
--   `Funding Name`: name of funding for the project
--   `Funding Title`: title of project grant
--   `Award info URI`: web address for award information
--   `Award number`: award number
+This analysis is based on work by Professor Joseph Holler of Middlebury College, and concepts and workflows from the course Open GIScience GEOG 0361. 
 
 This report is based upon the template for Reproducible and Replicable Research in Human-Environment and Geographical Sciences, [DOI:[10.17605/OSF.IO/W29MQ](DOI:%5B10.17605/OSF.IO/W29MQ){.uri}](https://doi.org/10.17605/OSF.IO/W29MQ)
 
 # References
+
+Cheng, Joe, Carson Sievert, Barret Schloerke, Winston Chang, Yihui Xie, and Jeff Allen. 2024. Htmltools: Tools for HTML. https://github.com/rstudio/htmltools.
+Müller, Kirill. 2020. Here: A Simpler Way to Find Your Files. https://here.r-lib.org/.
+Pebesma, Edzer. 2018. “Simple Features for R: Standardized Support for Spatial Vector Data.” The R Journal 10 (1): 439–46. https://doi.org/10.32614/RJ-2018-009.
+———. 2024a. Lwgeom: Bindings to Selected Liblwgeom Functions for Simple Features. https://r-spatial.github.io/lwgeom/.
+———. 2024b. Sf: Simple Features for r. https://r-spatial.github.io/sf/.
+Pebesma, Edzer, and Roger Bivand. 2023. Spatial Data Science: With applications in R. Chapman and Hall/CRC. https://doi.org/10.1201/9780429459016.
+R Core Team. 2024. R: A Language and Environment for Statistical Computing. Vienna, Austria: R Foundation for Statistical Computing. https://www.R-project.org/.
+Tennekes, Martijn. 2018. “tmap: Thematic Maps in R.” Journal of Statistical Software 84 (6): 1–39. https://doi.org/10.18637/jss.v084.i06.
+———. 2025. Tmap: Thematic Maps. https://github.com/r-tmap/tmap.
+Walker, Kyle, and Matt Herman. 2025. Tidycensus: Load US Census Boundary and Attribute Data as Tidyverse and Sf-Ready Data Frames. https://walker-data.com/tidycensus/.
+Wickham, Hadley. 2023. Tidyverse: Easily Install and Load the Tidyverse. https://tidyverse.tidyverse.org.
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. “Welcome to the tidyverse.” Journal of Open Source Software 4 (43): 1686. https://doi.org/10.21105/joss.01686.
+Xie, Yihui. 2014. “Knitr: A Comprehensive Tool for Reproducible Research in R.” In Implementing Reproducible Computational Research, edited by Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/CRC.
+———. 2015. Dynamic Documents with R and Knitr. 2nd ed. Boca Raton, Florida: Chapman; Hall/CRC. https://yihui.org/knitr/.
+———. 2024. Knitr: A General-Purpose Package for Dynamic Report Generation in r. https://yihui.org/knitr/.
+Xie, Yihui, JJ Allaire, and Jeffrey Horner. 2024. Markdown: Render Markdown with Commonmark. https://github.com/rstudio/markdown.

@@ -1,4 +1,4 @@
 path,name,metadata,description
 raw/public/districts.gpkg:precincts20,2020 Voting Precincts,precincts20.md;redistrictingdatahub_legal.txt;readme_al_vest_20.txt;al_vest_20_validation_report.pdf,Voting precincts with 2020 election results
-raw/public/districts.gpkg:districts21,2021 Voting Districts,,
-raw/public/districts.gpkg:districts23,2023 Voting Districts,,
+raw/public/districts.gpkg:districts23,2023 Voting Districts,districts23.md;redistrictingdatahub_legal.txt;readme_al_vest_20.txt;al_vest_20_validation_report.pdf,Alabama congressional districts for the 2024 election. 
+raw/public/block_groups.gpkg,2020 Block Groups,blockgroups2020.md,Census block groups from 2020 census

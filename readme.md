@@ -64,8 +64,8 @@ The data, procedures, and results of this repository are outlined in three table
 - Results: [results/results_index.csv](results/results_index.csv)
 
 Important local **documents** include:
-- Pre-analysis plan: [docs/report/preanalysis.pdf](docs/report/preanalysis.pdf)
-- Study report: [docs/report/report.pdf](docs/report/report.pdf)
+- Pre-analysis plan: [docs/gerrymandering_analysis_plan0.1.html](https://padutchfan123.github.io/OR-Gerrymander-Alabama/gerrymandering_analysis_plan0.1.html)
+- Study report: [docs/gerrymandering_report.html](https://padutchfan123.github.io/OR-Gerrymander-Alabama/gerrymandering_report.html)
 - Manuscript: [docs/manuscript/manuscript.pdf](docs/manuscript/manuscript.pdf)
 - Presentation: [docs/presentation/presentation.pdf](docs/presentation/presentation.pdf)
 
